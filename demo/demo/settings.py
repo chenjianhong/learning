@@ -12,6 +12,7 @@ BOT_NAME = 'demo'
 
 SPIDER_MODULES = ['demo.spiders']
 NEWSPIDER_MODULE = 'demo.spiders'
+ITEM_PIPELINES = {'demo.pipelines.MySQLStorePipeline': 1}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'demo (+http://www.yourdomain.com)'
