@@ -44,9 +44,98 @@ mongodb是面向文档的数据库。没有模式，文档的健不用事先定�
 mongodb shell
 shell是功能完备的javascript解释器。开启的时候会连到mongdb服务器的test数据库，并将这个数据库赋值给全局变量db。
 
+使用数据库
+use foobar
+
+查看数据库
+db
+可以通过db变量来访问其中的集合
+
+shell基本操作
+1.创建
+添加一个文档到集合里面
+> post = {'title':"my blog post"}
+{ "title" : "my blog post" }
+>
+> db.blog.insert(post)
+WriteResult({ "nInserted" : 1 })
+>
+> db.blog.find()
+{ "_id" : ObjectId("558ace91e553ee92857b8cef"), "title" : "my blog post" }
+
+2.读取
+> db.blog.findOne()
+{ "_id" : ObjectId("558ace91e553ee92857b8cef"), "title" : "my blog post" }
+
+3.更新
+> post
+{ "title" : "my blog post" }
+> post.comments = []
+[ ]
+> post
+{ "title" : "my blog post", "comments" : [ ] }
+> db.blog.update({'title':'my blog post'},post)
+WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
+> db.blog.findOne()
+{
+        "_id" : ObjectId("558ace91e553ee92857b8cef"),
+        "title" : "my blog post",
+        "comments" : [ ]
+}
+
+4.删除
+> db.blog.remove({'title':'my blog post'})
+WriteResult({ "nRemoved" : 1 })
+>
+> db.blog.findOne()
+null
+
+5.删除集合
+db.drop_collection('blog')
+
+
+5.使用shell的窍门
+shell本身内置了帮助文档，可以通过help命令查看。
+
+如果集合名与系统预留属性冲突会导致找不到属性。
+可以使用db.getCollection("version")的方式来获取。
+x.y,x['y']完全等价
+
+6.数据类型
+
+1.基本数据类型
+null:{'x':null}表示空值或者不存在的字段
+bool:{'x':true}
+32位整数：
+64位整数：
+64位浮点数：{'x':1.2}{'y':3}shell中的数字都是这种类型
+字符串：{'x':'abc'}
+对象id：{'x':ObjectId()}
+日期：{"x":new Date()} 从标准纪元开始的毫秒数
+正则表达式：{'x':/foot/}
+代码：javascript代码
+二进制：
+最大值：可能的最大值
+最小值：表示可能的最小值
+未定义：{'x':undefined}
+数组：{'x':[1,2,3]}
+内嵌文档：{'x':{'a':1}}
+
+1.数字
+默认情况下，shell中的数字都被mongodb当做双精度。
+ObjectId使用12字节的存储空间，生成方式：
+0-3    4-6  7-8 9-11
+时间戳|机器|pid|计数器
+计数器保证每个进程拥有最多1677万个不同的ObjectId
 
 
 
-
-
-
+2.使用修改器
+每次执行b自动累加，累加数为指定的大小，这里为10。
+db.blog.update({'a':'1'},{"$inc":{'b':10}})
+如果键不存在则创建，存在则更新。
+db.blog.update({'a':'1'},{"$set":{'c':'c1'}})
+去除键
+db.blog.update({'a':'1'},{"$unset":{'c':'c1'}})
+数组修改器
+db.blog.update({'a':[1,2,3]},{"$addToSet":{'a':4}})
