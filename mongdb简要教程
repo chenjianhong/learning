@@ -139,3 +139,45 @@ db.blog.update({'a':'1'},{"$set":{'c':'c1'}})
 db.blog.update({'a':'1'},{"$unset":{'c':'c1'}})
 数组修改器
 db.blog.update({'a':[1,2,3]},{"$addToSet":{'a':4}})
+
+3.upset
+先查找是否存在，不存在则创建，然后将修改器的文档应用于其上。
+db.blog.update({'a':1},{"$inc":{'a':1}},true)
+
+4.同时更新多个文档
+db.blog.update({'a':2},{"$inc":{'b':10}},false,true)
+第4个参数为false才会只更新一个。
+
+5.解决并发问题
+db.runCommand({'findAndModify':'blog','update':{'$set':{'c':3}}.value})
+
+6.瞬间完成
+mongodb的插入、删除和更新都是瞬间完成的，不需要等待数据库响应。
+
+7.请求和连接
+mongodb为每一个数据库连接创建一个队列，保证能读取到自己写的数据。不同连接之间的数据是独立的。
+
+
+8.查询
+返回指定的键
+db.blog.find({},{'b':0})
+
+正则表达式
+db.blog.find({'a':/[0-9]*/i})
+
+查询内嵌文档
+db.blog.find({'e.e1':'1'})
+
+游标
+> var cursor = db.blog.find()
+> cursor.hasNext()
+true
+> cursor.next()
+{ "_id" : ObjectId("558c252912712d216be45b3b") }
+> cursor.next()
+{ "_id" : ObjectId("558c257212712d216be45b3e"), "a" : 2, "b" : 10 }
+
+limit，skip，sort
+ db.blog.find().limit(2)
+ db.blog.find().skip(1)
+ db.blog.find().sort({'b':1})
