@@ -204,3 +204,53 @@ explain用来查看是否使用索引，hint用来强制使用某个索引。
 7删除索引
 db.runCommand({'dropIndexes':'blog','index':'index_1'})
 
+聚合
+1.count
+返回集合中符合条件的文档数量
+db.foo.count()
+db.foo.count({'x':1})
+
+2.distinct
+找出给定键的所有不同的值。
+db.runCommand({'distinct':'people','key':'age'})
+注意：只是获得指定键的不同值。
+
+3.group
+db.posts.group({
+    'key':{'tags':true},
+    'initial':{'tags':true},
+    '$reduce':function(doc,prev){
+        for(i in doc.tags){
+            if(doc.tag[i] in prev.tags){
+                prev.tags[doc.tags[i]]++;
+            }
+        }
+    },
+    'finalize':function(prev){
+        delete prev.tags[0];
+    }
+    'condition':{'day':{'$gt':'2010/09/30'}}
+})
+key:指定分组的键
+initial:为每组reduce函数初始化参数，创建一个累加器
+$reduce:每个文档都会调用一次，参数为当前文档，累加器。
+condition:只处理满足条件的文档。
+finalize:每组结果返回到客户端前调用一次。
+
+
+mapreduce
+mr = db.runCommand({
+    'mapreduce':'foo',
+    'map':function(..){...},
+    'reduce':function(...){...},
+    'finalize':function(...){...}，
+    'query':{'day':{'$gt':'2010/09/30'}}
+})
+
+数据库命令
+1.查看命令执行结果
+db.runCommand({'getLastError':1})
+2.返回集合统计信息，数据大小，已分配存储空间和索引大小
+collStats
+
+
