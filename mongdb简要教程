@@ -252,5 +252,7 @@ mr = db.runCommand({
 db.runCommand({'getLastError':1})
 2.返回集合统计信息，数据大小，已分配存储空间和索引大小
 collStats
-
+3.创建用户
+db.addUser('u1','p1')
+db.addUser('u1','p1',true) 只读账户
 
