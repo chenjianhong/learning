@@ -20,6 +20,18 @@ hdfs和mapreduce是hadoop的两大核心。
    1. 由一个单独运行在主节点的jobtracker和运行在每个集群从节点的tasktracker组成。
    2. 主节点负责调度一个作业的所有任务，监控执行情况，重新执行失败的任务。
    3. 从节点仅负责由主节点指派的任务。
-   
+  
+ 
+##hadoop集群安全策略
+1. 用户权限管理 
+2. hdfs安全策略
+3. mapreduce安全策略
+
 ##hadoop的安装与配置
 1. 安装jdk
+2. 配置JAVA_HOME,CLASSPATH,PATH环境变量。
+3. 安装ssh，创建公钥文件，配置ssh。
+4. 下载hadoop
+5. 配置hadoop
+6. 格式化hadoop文件系统hdfs
+7. 验证安装是否成功
