@@ -73,3 +73,12 @@ outputformat定义输出格式。
 hadoop流提供了一个API，允许使用任何脚本和语言写map和reduce函数。
 1.原理
   每个map和reduce任务会以独立进程启动，并且输入和输出都依靠标准输入和输出。 默认情况下，一行中第一个tab之前的部分作为key，之后的（不包括tab）作为value。如果没有tab，整行作为key值，value值为null。
+
+##开发mapreduce应用程序
+1. jobtracker页面
+   页面主要包括五个部分。
+   1. hadoop安装的详细信息。版本号、编译完成时间、jobtracker当前运行状态和开始时间。
+   2. 集群的总结信息。集群容量及使用情况，运行的mr数量，当前的可用tasktracker数量等。
+   3. 正在运行的工作日程表
+   4. 正在运行、完成、失败的工作
+   5. jobtracker的历史信息。
