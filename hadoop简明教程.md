@@ -106,3 +106,24 @@ hadoop流提供了一个API，允许使用任何语言写map和reduce函数。
 1. 提交作业
   1. 通过jobtracker获取作业id
   2. 检查相关路径是否存在
+  3. 计算作业的输入划分，并将划分信息写入job.split文件。
+  4. 将运行作业所需要的资源——包括jar包、配置文件盒计算所得的输入划分等复制到hdfs上。
+  
+2. 初始化作业
+   jobtracker会把作业放入内部的taskscheduler变量中，进行调度，一般FIFO调度方式。
+  1. 从hdfs中读取作业对应的job.split，得到输入数据的划分信息。
+  2. 创建初始化map任务和reduce任务，根据split个数设定map，根据jobconf中的mapred.reduce.tasks配置设定reduce个数。
+  3. 创建2个初始化task。
+  
+3. 分配任务
+  tasktracker向jobtracker发送心跳，并请求分配任务。
+  
+4. 执行任务
+  1. 将任务运行所必需的数据、配置信息、程序代码从hdfs复制到tasktracker本地。
+  2. 调用launchtaskforjob启动任务。
+  
+5. 更新任务执行进度和状态
+   通过计数器标志告知tasktracker当前的任务状态。
+
+6. 完成作业
+   当jobtracker接收到最后一个任务的已完成通知后，便把作业的状态设置为“成功”。
