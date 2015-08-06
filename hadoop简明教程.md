@@ -2,6 +2,13 @@
 
 ##概述
 1. hadoop是apache软件基金会旗下的一个开源分布式计算平台。
+2. 大数据的特点4v，volume（量大）、variety（种类多）、value（价值密度低）、velocity（处理速度快）
+3. 云计算因大数据而存在，hadoop连接了大数据和云计算。
+4. 国内外hadoop的应用现状
+  1. yahoo 总节点超过42000，单master节点有4500个节点。总集群量350pb
+  2. facebook 1440个节点，15pb容量
+  3. 百度 集群10个，单集群超过2800台机器节点，100pb存储
+  4. 阿里 3200台节点，60pb存储
 
 ##优点
 1. 高可靠性
@@ -36,15 +43,15 @@ hdfs和mapreduce是hadoop的两大核心。
 6. 格式化hadoop文件系统hdfs
 7. 验证安装是否成功
 
-##配置和安装hadoop cluster
+##配置hadoop cluster
 1. 配置/etc/hosts及/etc/hostname
 2. 配置ssh可免密码登录
 3. 配置所有节点的hadoop-env.sh文件指定JAVA_HOME
 4. 配置所有节点的core-site.xml文件
    1. 指定namenode的ip地址和端口，fs.default.name。
    2. 指定hadoop.tmp.dir，节点的block数据和元数据都默认存放在这个目录。
-5. 配置hdfs-site.xml文件，指定文件备份数。
-6. 配置mapred-site.xml文件，指定jobtracker地址。
+5. 配置hdfs-site.xml文件，指定文件备份数，元数据和datanode数据目录。
+6. 配置map-site.xml文件，指定jobtracker地址。
 7. 配置masters，指定master
 8. 配置slaves，指定slaves
 9. 启动hadoop
@@ -70,15 +77,32 @@ outputformat定义输出格式。
 6. 自定义数据类型 减少数据计算时间
 
 ##hadoop流
-hadoop流提供了一个API，允许使用任何脚本和语言写map和reduce函数。
+hadoop流提供了一个API，允许使用任何语言写map和reduce函数。
 1.原理
-  每个map和reduce任务会以独立进程启动，并且输入和输出都依靠标准输入和输出。 默认情况下，一行中第一个tab之前的部分作为key，之后的（不包括tab）作为value。如果没有tab，整行作为key值，value值为null。
+  每个map和reduce任务会以独立进程启动，并且输入和输出都依靠标准输入和输出。 默认情况下，一行中第一个tab之前的部分作为key，之后的（不包括tab）作为value。如果没有tab，整行作为key值，value值为null。reduce的输入是map输出后根据key排序好的。
 
-##开发mapreduce应用程序
-1. jobtracker页面
+##jobtracker页面
    页面主要包括五个部分。
    1. hadoop安装的详细信息。版本号、编译完成时间、jobtracker当前运行状态和开始时间。
    2. 集群的总结信息。集群容量及使用情况，运行的mr数量，当前的可用tasktracker数量等。
    3. 正在运行的工作日程表
    4. 正在运行、完成、失败的工作
    5. jobtracker的历史信息。
+
+##复杂的map和reduce函数
+1. setup函数 每个任务启动后只调用一次
+2. cleanup函数 每个任务启动后只调用一次
+3. 使用DistributedCache只读缓存文件
+4. 链接mapreduce job
+
+##mapreduce作业的执行流程
+代码编写-作业配置-作业提交-map任务分配和执行-处理中间结果-reduce任务分配和执行-作业完成。
+涉及4个独立的实体：
+1. 客户端 编写mr代码，配置作业，提交作业
+2. jobtracker 初始化作业，分配作业，协调作业的执行
+3. tasktracker 执行map或reduce任务，保持和jobtracker通信
+4. hdfs 保持作业数据，配置信息。
+
+1. 提交作业
+  1. 通过jobtracker获取作业id
+  2. 检查相关路径是否存在
