@@ -147,3 +147,10 @@ shuffle过程包含在map和reduce两端中。
    当map任务的环形内存缓冲区达到阀值时，需要创建spill文件，然后按照key值排序，再执行combine类合并后写入。map任务执行完毕后合并spill文件（每个key都会取模来决定最终归属的reduce，这里称为分区。文件按照分区排序合并）
 2. reduce端
   每完成一个map任务，jobtracker告知map输出位置，reduce复制输出到本地同时进行合并，保持数据原来的顺序。最后进行reduce处理。
+
+##任务执行
+1. 推测式执行
+   如果某个任务所在的tasktracker节点配置低或者cpu负载过高，导致任务执行速度慢，则jobtracker会重启一个新的备份任务，哪个先执行完就把另外一个kill掉。
+2. 任务jvm重用
+   通过设置jvm运行任务数来重用jvm，解决新建多个jvm的消耗。
+3. 跳过坏记录
