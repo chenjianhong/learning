@@ -131,3 +131,19 @@ hadoop流提供了一个API，允许使用任何语言写map和reduce函数。
 ##错误处理机制
 
 1.硬件故障
+  1. jobtracker故障 采用领导选举算法重新确定jobtracker
+  2. tasktracker故障 
+     1. 如果tasktracker在1分钟没有和jobtracker通信，则要求该tasktracker上的任务立即返回，并要求其他tasktracker重新执行未完成的map任务或者reduce任务。（map任务必须重新执行，reduce可以只执行未完成的）
+2. 任务失败
+   如果任务执行失败，jvm进程会自动退出，并向父进程发送错误，写入log，如果主进程没有收到进程进度更新，也会将任务标记失败，杀死程序对应的进程。通过心跳机制告诉jobtracker任务失败，jobtracker重新分配任务，重复4次失败则整个作业失败。
+
+##作业调度机制
+1. 先进先出 作业提交的顺序来运行
+2. 公平调度 每个用户一个独立的作业池，使用公平共享的方法在运行作业间共享容量，还可以为作业设置最小资源和最大并行作业数，避免塞满磁盘空间。
+
+##shuffle和排序
+shuffle过程包含在map和reduce两端中。
+1. map端
+   当map任务的环形内存缓冲区达到阀值时，需要创建spill文件，然后按照key值排序，再执行combine类合并后写入。map任务执行完毕后合并spill文件（每个key都会取模来决定最终归属的reduce，这里称为分区。文件按照分区排序合并）
+2. reduce端
+  每完成一个map任务，jobtracker告知map输出位置，reduce复制输出到本地同时进行合并，保持数据原来的顺序。最后进行reduce处理。
