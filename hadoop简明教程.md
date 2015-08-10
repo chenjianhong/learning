@@ -154,3 +154,18 @@ shuffle过程包含在map和reduce两端中。
 2. 任务jvm重用
    通过设置jvm运行任务数来重用jvm，解决新建多个jvm的消耗。
 3. 跳过坏记录
+
+
+##hadoop的I/O操作
+1. I/O操作中的数据检查
+   hadoopshiyongcrc-32进行数据完整性检查。
+   1. 对本地文件I/O的检查 每当hadoop创建文件a时，都会在同一目录下创建.a.crc，记录了文件a的校验和。默认每512字节生成一个校验和。
+   2. 对hdfs的I/O数据进行检查 
+     1. datanode接收数据后存储数据前 hadoop会生成一条数据管线，数据在传送给主datanode的同时也会向备份datanode传送，3个备份形成时间差不多。
+     2. 客户端读取datanode上的数据时进行校验和检验
+     3. datanode后台守护进程定期检查 
+   3. 数据恢复策略 如果发现数据块失效，则datanode和namenode都会尝试修复，修复成功后设置标签，避免重新修复。
+
+2. 数据的压缩 gzip、bzip2、zlib（bzip2支持文件分割）
+
+
