@@ -167,5 +167,27 @@ shuffle过程包含在map和reduce两端中。
    3. 数据恢复策略 如果发现数据块失效，则datanode和namenode都会尝试修复，修复成功后设置标签，避免重新修复。
 
 2. 数据的压缩 gzip、bzip2、zlib（bzip2支持文件分割）
+3. 数据的I/O序列化操作
+   序列化有两个目的：
+   1. 进程间通信
+   2. 数据持久性存储
+   hadoop采用rpc来实现进程间通信。
+4. 针对mapreduce的文件类
+   1. sequencefile类 记录的是key/value对列表，是序列化后的二进制文件，不能直接查看。
+   2. mapfile类 与sequencefile类似，但生成的结果多一个索引文件
 
+
+##下一代mapreduce：yarn
+
+1. mapreduce的局限性
+  1. jobtracker单点瓶颈 随着业务增长，jobtracker的内存和带宽会不够。
+  2. tasktracker作业配置太简单
+  3. 作业延迟过高 jobtracker需要根据tasktracker汇报的执行情况来分配作业
+  4. 编程框架不够灵活
+   
+2. yarn的主要思想
+  1. 将jobtracker的资源管理和作业管理分离
+
+  
+##hdfs详解
 
