@@ -286,3 +286,7 @@ public class SMSCDRMapperReducerTest {
   }
 }
 ```
+##mapreduce计数器
+用来观察job运行期的各种细节数据。
+mapreduce自带的counter含义。
+http://langyu.iteye.com/blog/1171091
