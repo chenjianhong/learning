@@ -290,3 +290,87 @@ public class SMSCDRMapperReducerTest {
 用来观察job运行期的各种细节数据。
 mapreduce自带的counter含义。
 http://langyu.iteye.com/blog/1171091
+MapReduce job提供的默认Counter分为五个组
+FileInputFormatCounters 
+BYTES_READ 
+         Map task的所有输入数据(字节)，等于各个map task的map方法传入的所有value值字节之和。
+         
+FileSystemCounters 
+    FILE_BYTES_READ	
+        job读取本地文件系统的文件字节数。假定我们当前map的输入数据都来自于HDFS，那么在map阶段，这个数据应该是0。但reduce在执行前，它的输入数据是经过shuffle的merge后存储在reduce端本地磁盘中，所以这个数据就是所有reduce的总输入字节数。 
+
+FILE_BYTES_WRITTEN 
+        map的中间结果都会spill到本地磁盘中，在map执行完后，形成最终的spill文件。所以map端这里的数据就表示map task往本地磁盘中总共写了多少字节。与map端相对应的是，reduce端在shuffle时，会不断地拉取map端的中间结果，然后做merge并不断spill到自己的本地磁盘中。最终形成一个单独文件，这个文件就是reduce的输入文件。 
+
+HDFS_BYTES_READ 
+        整个job执行过程中，只有map端运行时，才从HDFS读取数据，这些数据不限于源文件内容，还包括所有map的split元数据。所以这个值应该比FileInputFormatCounters.BYTES_READ 要略大些。 
+
+HDFS_BYTES_WRITTEN 
+        Reduce的最终结果都会写入HDFS，就是一个job执行结果的总量。
+
+Shuffle Errors 
+这组内描述Shuffle过程中的各种错误情况发生次数，基本定位于Shuffle阶段copy线程抓取map端中间数据时的各种错误。 
+
+Job Counters 
+Data-local map tasks 
+        Job在被调度时，如果启动了一个data-local(源文件的幅本在执行map task的taskTracker本地) 
+FALLOW_SLOTS_MILLIS_MAPS 
+        当前job为某些map task的执行保留了slot，总共保留的时间是多少 
+FALLOW_SLOTS_MILLIS_REDUCES 
+        与上面类似 
+SLOTS_MILLIS_MAPS 
+        所有map task占用slot的总时间，包含执行时间和创建/销毁子JVM的时间 
+SLOTS_MILLIS_REDUCES 
+        与上面类似 
+Launched map tasks 
+        此job启动了多少个map task 
+Launched reduce tasks 
+        此job启动了多少个reduce task 
+
+Map-Reduce Framework 
+Combine input records 
+        Combiner是为了减少尽量减少需要拉取和移动的数据，所以combine输入条数与map的输出条数是一致的。 
+
+Combine output records 
+        经过Combiner后，相同key的数据经过压缩，在map端自己解决了很多重复数据，表示最终在map端中间文件中的所有条目数 
+
+Failed Shuffles 
+        copy线程在抓取map端中间数据时，如果因为网络连接异常或是IO异常，所引起的shuffle错误次数 
+
+GC time elapsed(ms) 
+        通过JMX获取到执行map与reduce的子JVM总共的GC时间消耗 
+
+Map input records 
+        所有map task从HDFS读取的文件总行数 
+
+Map output records 
+        map task的直接输出record是多少，就是在map方法中调用context.write的次数，也就是未经过Combine时的原生输出条数 
+
+Map output bytes 
+        Map的输出结果key/value都会被序列化到内存缓冲区中，所以这里的bytes指序列化后的最终字节之和 
+
+Merged Map outputs 
+        记录着shuffle过程中总共经历了多少次merge动作 
+
+Reduce input groups 
+        Reduce总共读取了多少个这样的groups 
+
+Reduce input records 
+        如果有Combiner的话，那么这里的数值就等于map端Combiner运算后的最后条数，如果没有，那么就应该等于map的输出条数 
+
+Reduce output records 
+        所有reduce执行后输出的总条目数 
+
+Reduce shuffle bytes 
+        Reduce端的copy线程总共从map端抓取了多少的中间数据，表示各个map task最终的中间文件总和 
+
+Shuffled Maps 
+         每个reduce几乎都得从所有map端拉取数据，每个copy线程拉取成功一个map的数据，那么增1，所以它的总数基本等于 reduce number * map number 
+
+Spilled Records 
+        spill过程在map和reduce端都会发生，这里统计在总共从内存往磁盘中spill了多少条数据 
+
+SPLIT_RAW_BYTES 
+        与map task 的split相关的数据都会保存于HDFS中，而在保存时元数据也相应地存储着数据是以怎样的压缩方式放入的，它的具体类型是什么，这些额外的数据是MapReduce框架加入的，与job无关，这里记录的大小就是表示额外信息的字节大小 
+
+
