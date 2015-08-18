@@ -80,6 +80,44 @@ outputformat定义输出格式。
 hadoop流提供了一个API，允许使用任何语言写map和reduce函数。
 1.原理
   每个map和reduce任务会以独立进程启动，并且输入和输出都依靠标准输入和输出。 默认情况下，一行中第一个tab之前的部分作为key，之后的（不包括tab）作为value。如果没有tab，整行作为key值，value值为null。reduce的输入是map输出后根据key排序好的。
+2. 优缺点
+    优点
+        可以使用自己喜欢的语言来编写MapReduce程序（python）
+        不需要像写Java的MR程序那样import一大堆库，在代码里做一大堆配置，代码量显著减少
+        因为没有库的依赖，调试方便，并且可以脱离Hadoop先在本地用管道模拟调试
+    缺点
+        只能通过命令行参数来控制MapReduce框架，不像Java的程序那样可以在代码里使用API，控制力比较弱
+        因为中间隔着一层处理，效率会比较慢
+示例：
+1.执行python脚本
+```
+#coding: utf-8
+"""
+Some description here...
+"""
+
+import sys
+
+def main():
+    item_count = dict()
+    for line in sys.stdin:
+        items = line.strip().split(' ')
+        item_count[items[0]] = item_count.get(items[0],0) + 1
+    for sub in item_count:
+        print '%s\t%s\n'%(sub,item_count[sub])
+
+
+if __name__ == "__main__":
+    main()
+```
+```
+hadoop  jar <hadoop_home>/share/hadoop/tools/lib/hadoop-streaming-*.jar  -input /tmp/xxx -output /tmp/yyy -mapper "python test.py"  -file test.py
+```
+2.直接使用shell命令
+```
+hadoop  jar <hadoop_home>/share/hadoop/tools/lib/hadoop-streaming-2.3.0-cdh5.0.0.jar  -input /tmp/xxx -output /tmp/yyy -mapper cat -reducer "wc -l" 
+```
+  
 
 ##jobtracker页面
    页面主要包括五个部分。
