@@ -378,4 +378,7 @@ MapReduce job提供的默认Counter分为五个组
 ##hadoop自定义计数器
 
 http://my.oschina.net/leejun2005/blog/276891
-
+```
+Counter ct = context.getCounter("INPUT_WORDS", "count");  //第一个参数为组名，第二个子栏目名。
+ct.increment(1);
+```
