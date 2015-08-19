@@ -375,3 +375,7 @@ MapReduce job提供的默认Counter分为五个组
         与map task 的split相关的数据都会保存于HDFS中，而在保存时元数据也相应地存储着数据是以怎样的压缩方式放入的，它的具体类型是什么，这些额外的数据是MapReduce框架加入的，与job无关，这里记录的大小就是表示额外信息的字节大小 
 
 
+##hadoop自定义计数器
+
+http://my.oschina.net/leejun2005/blog/276891
+
